@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import {
 	bearer,
@@ -12,6 +12,7 @@ import {
 	customSession,
 	deviceAuthorization,
 	lastLoginMethod,
+	createAuthMiddleware,
 } from "better-auth/plugins";
 import { reactInvitationEmail } from "./email/invitation";
 import { reactResetPasswordEmail } from "./email/reset-password";
@@ -116,6 +117,7 @@ export const auth = betterAuth({
 			},
 		}),
 		twoFactor({
+			issuer: "Stack Provider Demo",
 			otpOptions: {
 				async sendOTP({ user, otp }) {
 					await resend.emails.send({
@@ -218,4 +220,21 @@ export const auth = betterAuth({
 			}
 		}
 	},
+	hooks: {
+		before: createAuthMiddleware(async (ctx) => {
+			if (ctx.path !== '/sign-in/email') {
+				return
+			}
+
+			const user = await prisma.user.findUnique({
+				where: { email: ctx.body?.email }
+			})
+
+			if (!user) {
+				throw new APIError('BAD_REQUEST', {
+					message: 'No account found with this email address'
+				})
+			}
+		})
+	}
 });

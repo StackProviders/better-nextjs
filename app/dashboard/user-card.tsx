@@ -272,8 +272,12 @@ export default function UserCard(props: {
 
 										{twoFactorVerifyURI ? (
 											<>
-												<div className="flex items-center justify-center">
-													<QRCode value={twoFactorVerifyURI} />
+												<div className="flex items-center justify-center p-4 bg-white rounded">
+													<QRCode 
+														value={twoFactorVerifyURI} 
+														size={200}
+														level="M"
+													/>
 												</div>
 												<div className="flex gap-2 items-center justify-center">
 													<p className="text-sm text-muted-foreground">
@@ -355,8 +359,12 @@ export default function UserCard(props: {
 
 									{twoFactorVerifyURI ? (
 										<div className="flex flex-col gap-2">
-											<div className="flex items-center justify-center">
-												<QRCode value={twoFactorVerifyURI} />
+											<div className="flex items-center justify-center p-4 bg-white rounded">
+												<QRCode 
+													value={twoFactorVerifyURI} 
+													size={200}
+													level="M"
+												/>
 											</div>
 											<Label htmlFor="password">
 												Scan the QR code with your TOTP app

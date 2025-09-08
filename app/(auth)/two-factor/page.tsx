@@ -14,12 +14,14 @@ import { Label } from "@/components/ui/label";
 import { client } from "@/lib/auth-client";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Component() {
 	const [totpCode, setTotpCode] = useState("");
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState(false);
+	const router = useRouter();
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -33,6 +35,7 @@ export default function Component() {
 			})
 			.then((res) => {
 				if (res.data?.token) {
+					router.push("/dashboard");
 					setSuccess(true);
 					setError("");
 				} else {
