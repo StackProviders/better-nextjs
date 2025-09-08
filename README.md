@@ -30,7 +30,6 @@ Configure these in your `.env` file:
 # Core Configuration
 BETTER_AUTH_URL=http://localhost:3000
 BETTER_AUTH_SECRET=your-secret-key
-BETTER_AUTH_EMAIL=your-email@domain.com
 
 # Database
 DATABASE_URL=your-mongodb-connection-string
@@ -43,6 +42,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Email Service (Resend)
 RESEND_API_KEY=your-resend-api-key
+RESEND_SENT_EMAIL=your-email@domain.com
 
 # Stripe Integration
 STRIPE_KEY=sk_test_your-stripe-secret-key
@@ -252,7 +252,7 @@ The project uses [Resend](https://resend.com) for email delivery:
 1. **Sign up** at [resend.com](https://resend.com)
 2. **Get API key** from dashboard
 3. **Add to environment**: `RESEND_API_KEY=your-key`
-4. **Configure sender**: `BETTER_AUTH_EMAIL=your-verified-domain@example.com`
+4. **Configure sender**: `RESEND_SENT_EMAIL=your-verified-domain@example.com`
 
 ### Email Templates
 

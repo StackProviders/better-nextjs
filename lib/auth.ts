@@ -23,7 +23,7 @@ import { stripe } from "@better-auth/stripe";
 import { Stripe } from "stripe";
 import { prisma } from "./prisma";
 
-const from = process.env.BETTER_AUTH_EMAIL || "delivered@resend.dev";
+const from = process.env.RESEND_SENT_EMAIL || "delivered@resend.dev";
 
 const baseURL: string | undefined =
 	process.env.VERCEL === "1"
