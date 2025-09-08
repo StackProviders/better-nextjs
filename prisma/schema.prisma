@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @map("_id")
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  accounts                Account[]
+  sessions                Session[]
+  twoFactorBackupCodes    TwoFactorBackupCode[]
+  passkeys                Passkey[]
+  stripeCustomers         StripeCustomer[]
+  stripeSubscriptions     StripeSubscription[]
+  members                 Member[]
+  invitations             Invitation[]
+
+  twoFactorEnabled Boolean?     @default(false)
+  role             String?
+  banned           Boolean?     @default(false)
+  banReason        String?
+  banExpires       DateTime?
+  stripeCustomerId String?
+  twofactors       TwoFactor[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @map("_id")
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  activeOrganizationId String?
+  impersonatedBy       String?
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @map("_id")
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @map("_id")
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+  @@map("verification")
+}
+
+model TwoFactorBackupCode {
+  id        String   @id @map("_id")
+  userId    String
+  code      String
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactorBackupCode")
+}
+
+model Passkey {
+  id           String   @id @map("_id")
+  userId       String
+  name         String?
+  publicKey    String
+  credentialID String   @unique
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  aaguid String?
+
+  @@map("passkey")
+}
+
+model Organization {
+  id        String   @id @map("_id")
+  name      String
+  slug      String?  @unique
+  logo      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members     Member[]
+  invitations Invitation[]
+  metadata    String?
+
+  @@map("organization")
+}
+
+model StripeCustomer {
+  id               String   @id @map("_id")
+  userId           String
+  stripeCustomerId String   @unique
+  email            String
+  name             String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("stripeCustomer")
+}
+
+model StripeSubscription {
+  id                   String    @id @map("_id")
+  userId               String
+  stripeSubscriptionId String    @unique
+  stripeCustomerId     String
+  status               String
+  priceId              String
+  quantity             Int?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  cancelAt             DateTime?
+  canceledAt           DateTime?
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  created              DateTime
+  endedAt              DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("stripeSubscription")
+}
+
+model Member {
+  id             String       @id @map("_id")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String
+  createdAt      DateTime
+
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id @map("_id")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
+}
+
+model TwoFactor {
+  id          String @id @map("_id")
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactor")
+}
+
+model Subscription {
+  id                   String    @id @map("_id")
+  plan                 String
+  referenceId          String
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  status               String?
+  periodStart          DateTime?
+  periodEnd            DateTime?
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  cancelAtPeriodEnd    Boolean?  @default(false)
+  seats                Int?
+
+  @@map("subscription")
+}
+
+model DeviceCode {
+  id              String    @id @map("_id")
+  deviceCode      String
+  userCode        String
+  userId          String?
+  expiresAt       DateTime
+  status          String
+  lastPolledAt    DateTime?
+  pollingInterval Int?
+  clientId        String?
+  scope           String?
+
+  @@map("deviceCode")
+}
