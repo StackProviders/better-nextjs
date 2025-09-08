@@ -43,11 +43,16 @@ const cookieDomain: string | undefined =
 		: undefined;
 
 export const auth = betterAuth({
-	appName: "Better Auth Demo",
+	appName: "Stack Provider Demo",
 	baseURL,
 	database: prismaAdapter(prisma, {
 		provider: "mongodb",
 	}),
+	rateLimit: {
+		enabled: true,
+		window: 60, // time window in seconds
+		max: 100, // max requests in the window
+	},
 	emailVerification: {
 		async sendVerificationEmail({ user, url }) {
 			const res = await resend.emails.send({
@@ -191,13 +196,26 @@ export const auth = betterAuth({
 			expiresIn: "3min",
 			interval: "5s",
 		}),
-		lastLoginMethod(),
+		lastLoginMethod({
+			cookieName: "stackprovider-auth-last-login-method",
+		}),
 	],
 	trustedOrigins: ["exp://"],
 	advanced: {
+		cookiePrefix: "stackprovider-auth",
 		crossSubDomainCookies: {
 			enabled: process.env.NODE_ENV === "production",
 			domain: cookieDomain,
 		},
+		cookies: {
+			session_token: {
+				name: "stackprovider-auth-token",
+				attributes: {
+					httpOnly: true,
+					secure: process.env.NODE_ENV === 'production',
+					sameSite: 'lax'
+				}
+			}
+		}
 	},
 });

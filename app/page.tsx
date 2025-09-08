@@ -41,6 +41,7 @@ const features = [
 ];
 
 export default async function Home() {
+	// @ts-ignore
 	return (
 		<div className="min-h-[80vh] flex items-center justify-center overflow-hidden no-visible-scrollbar px-6 md:px-0">
 			<main className="flex flex-col gap-4 row-start-2 items-center justify-center">
