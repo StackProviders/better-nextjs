@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { stripeClient } from "@better-auth/stripe/client";
 
 export const client = createAuthClient({
-	baseURL: process.env.NODE_ENV === "development" ? "http://localhost:3000" : undefined,
+	baseURL: process.env.BETTER_AUTH_URL,
 	plugins: [
 		organizationClient(),
 		twoFactorClient({
